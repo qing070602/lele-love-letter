@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060B1A">
+<meta name="color-scheme" content="dark">
+<meta name="format-detection" content="telephone=no, email=no, address=no">
+<meta name="description" content="雪落无声，爱意有声。一封藏在冬夜里，只写给你的信。">
+<meta property="og:title" content="冬天有一封信，想写给你">
+<meta property="og:description" content="轻触窗户，看看冬天写给你的话。">
+<meta property="og:type" content="website">
+<title>冬天有一封信，想写给你</title>
+<style>
+  :root {
+    --night-top: #060b1a; --night-middle: #101c35; --night-bottom: #192a46;
+    --ice: #b8d8f8; --moon: #f3f7ff; --lavender: #b4a7d6; --gold: #f4d9a6;
+    --ice-rgb: 184, 216, 248; --gold-rgb: 244, 217, 166;
+    --ease: cubic-bezier(.22, .61, .36, 1);
+    --breath-time: 3.8s; --wake-time: 1.5s; --line-time: .9s;
+    --slow-time: 8s; --fade-time: 1.8s; --enter-time: 2s;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+  body {
+    background: var(--night-top); color: var(--moon);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-weight: 300; -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+  }
+  .scene {
+    position: relative; width: 100%; height: 100vh; height: 100dvh;
+    overflow: hidden; isolation: isolate; touch-action: manipulation;
+  }
+  .night, .mist, .light, .warmth, .glass, #snow { position: absolute; inset: 0; pointer-events: none; }
+  .night {
+    background: radial-gradient(ellipse at 73% 18%, rgba(184,216,248,.065), transparent 34%),
+      linear-gradient(180deg, var(--night-top), var(--night-middle) 53%, var(--night-bottom));
+  }
+  .night::before {
+    content: ""; position: absolute; inset: 0; opacity: .45;
+    background: radial-gradient(circle at 21% 19%, var(--ice) 0 .6px, transparent 1.2px),
+      radial-gradient(circle at 76% 30%, var(--moon) 0 .5px, transparent 1px),
+      radial-gradient(circle at 64% 9%, var(--moon) 0 .4px, transparent 1px),
+      radial-gradient(circle at 39% 34%, var(--ice) 0 .5px, transparent 1px);
+    animation: atmosphere var(--slow-time) ease-in-out infinite alternate;
+  }
+  .mist {
+    inset: 25% -25% -20%; opacity: .32;
+    background: radial-gradient(ellipse at 68% 65%, rgba(184,216,248,.11), transparent 53%);
+    animation: mist-drift 28s ease-in-out infinite alternate;
+  }
+  .light {
+    opacity: 0;
+    background: radial-gradient(ellipse at 50% 48%, rgba(var(--ice-rgb),.1), transparent 62%);
+  }
+  .warmth {
+    opacity: 0;
+    background: radial-gradient(ellipse at 50% 56%, rgba(var(--gold-rgb),.08), transparent 52%);
+  }
+  #snow { width: 100%; height: 100%; }
+  .glass {
+    background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(3,7,18,.37) 100%);
+    box-shadow: inset 0 0 80px rgba(3,7,18,.18);
+  }
+  .composition { position: absolute; top: 0; width: 100%; height: var(--scene-height, 100%); }
+  .eyebrow {
+    position: absolute; top: max(11%, calc(env(safe-area-inset-top, 0px) + 32px));
+    width: 100%; margin: 0; text-align: center; padding-left: .65em;
+    font-size: 10px; letter-spacing: .65em; color: rgba(var(--ice-rgb),.48);
+    animation: arrive var(--enter-time) var(--ease) both;
+  }
+  .intro { position: absolute; inset: 0; }
+  .opener {
+    position: absolute; left: 50%; top: 50%; width: 112px; height: 112px;
+    margin: -56px 0 0 -56px; padding: 12px; border: 0; border-radius: 50%;
+    color: var(--ice); background: transparent; cursor: pointer;
+    transition: background .4s ease, box-shadow .4s ease;
+  }
+  .opener:focus-visible { outline: 1px solid rgba(var(--ice-rgb),.6); outline-offset: 8px; }
+  .opener::before {
+    content: ""; position: absolute; inset: -24px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--ice-rgb),.08), transparent 68%);
+  }
+  .crystal { display: block; width: 100%; height: 100%; transition: transform .4s var(--ease); }
+  .crystal svg {
+    display: block; width: 100%; height: 100%; overflow: visible;
+    filter: drop-shadow(0 0 12px rgba(var(--ice-rgb),.38));
+    animation: breathe var(--breath-time) ease-in-out infinite;
+  }
+  .opener:active .crystal { transform: scale(.96); }
+  @media (hover: hover) {
+    .opener:hover .crystal { transform: scale(1.035); }
+    .opener:hover { background: rgba(var(--ice-rgb),.025); }
+  }
+  .hint {
+    position: absolute; left: 20px; right: 20px; top: calc(50% + 77px);
+    margin: 0; text-align: center; font-size: clamp(13px, 3.5vw, 15px);
+    letter-spacing: .13em; line-height: 1.9; color: rgba(243,247,255,.76);
+    animation: arrive var(--enter-time) var(--ease) both;
+  }
+  .hint span { display: block; animation: hint-float 6s ease-in-out 2s infinite; }
+  .aside { display: block; margin-top: 15px; font-size: 11px; letter-spacing: .15em; color: rgba(243,247,255,.37); }
+  .halo {
+    position: absolute; left: 50%; top: 50%; width: 94px; height: 94px;
+    margin: -47px; opacity: 0; border: 1px solid rgba(var(--ice-rgb),.26); border-radius: 50%;
+    box-shadow: 0 0 22px rgba(var(--ice-rgb),.08), inset 0 0 18px rgba(var(--ice-rgb),.05);
+    pointer-events: none;
+  }
+  .letter {
+    position: absolute; left: 50%; top: 50%; width: calc(100% - 48px); max-width: 720px;
+    transform: translate(-50%, -50%); text-align: center; pointer-events: none;
+    font-family: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+    font-size: clamp(23px, 6.15vw, 30px); font-weight: 400;
+    line-height: 2; letter-spacing: .14em; text-shadow: 0 0 24px rgba(var(--ice-rgb),.14);
+  }
+  .letter p { margin: 0; }
+  .letter p + p { margin-top: .65em; }
+  .line { display: block; opacity: 0; transform: translateY(10px); filter: blur(4px); overflow-wrap: anywhere; }
+  .secret {
+    position: absolute; bottom: max(10%, calc(env(safe-area-inset-bottom, 0px) + 68px));
+    left: 24px; right: 24px; margin: 0; text-align: center;
+    font-size: clamp(11px, 2.9vw, 13px); line-height: 1.8; letter-spacing: .12em;
+    color: rgba(var(--gold-rgb),.65); opacity: 0;
+  }
+  .awake .intro { animation: wake var(--wake-time) var(--ease) both; pointer-events: none; }
+  .awake .halo { animation: halo var(--wake-time) var(--ease) both; }
+  .awake .light { animation: arrive var(--fade-time) ease .5s both; }
+  .awake .line { animation: line-in var(--line-time) var(--ease) var(--delay) both; }
+  .is-warm .warmth { animation: arrive var(--fade-time) ease both; }
+  .complete .letter { animation: poem-breathe var(--slow-time) ease-in-out infinite; }
+  .complete .line { animation: none; opacity: 1; transform: none; filter: none; }
+  .complete .intro { animation: none; opacity: 0; visibility: hidden; }
+  .secret.visible { animation: secret-in var(--fade-time) var(--ease) both; }
+  .paused *, .paused *::before, .paused *::after { animation-play-state: paused !important; }
+  .low-power .mist, .low-power .night::before, .low-power .crystal svg,
+  .low-power .hint span, .low-power.complete .letter { animation: none; }
+  .control {
+    position: absolute; z-index: 2; display: inline-flex; align-items: center;
+    justify-content: center; gap: 8px; min-width: 44px; min-height: 44px;
+    padding: 8px 12px; border: 0; border-radius: 24px; background: transparent;
+    color: rgba(var(--ice-rgb),.62); font: inherit; font-size: 11px;
+    letter-spacing: .12em; cursor: pointer; touch-action: manipulation;
+    transition: opacity .65s var(--ease), transform .4s var(--ease), background .4s ease;
+  }
+  .control svg { width: 16px; height: 16px; flex: none; }
+  .control[hidden] { display: none; }
+  .control:focus-visible { outline: 1px solid var(--ice); outline-offset: 3px; }
+  .control:active { transform: scale(.96); }
+  .music { top: calc(env(safe-area-inset-top, 0px) + 15px); right: max(14px, env(safe-area-inset-right, 0px)); animation: arrive var(--enter-time) ease both; }
+  .music .sound-waves { opacity: .3; transition: opacity .4s; }
+  .music[aria-pressed="true"] .sound-waves { opacity: 1; }
+  .replay { bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); left: 50%; margin-left: -65px; width: 130px; opacity: 0; visibility: hidden; transform: translateY(6px); }
+  .complete .replay { opacity: 1; visibility: visible; transform: translateY(0); }
+  .complete .replay:active { transform: scale(.96); }
+  .restarting .letter, .restarting .secret, .restarting .light, .restarting .warmth {
+    animation: none; opacity: 0; transition: opacity .65s ease;
+  }
+  .restarting .intro { animation: none; opacity: 1; visibility: visible; transform: none; filter: none; transition: opacity .65s ease; }
+  .restarting .replay { opacity: 0; pointer-events: none; }
+  .reduced.restarting .letter, .reduced.restarting .secret, .reduced.restarting .light,
+  .reduced.restarting .warmth, .reduced.restarting .intro { transition-duration: .2s; }
+  @media (hover: hover) { .control:hover { background: rgba(var(--ice-rgb),.045); } }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  @keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes atmosphere { to { opacity: .2; } }
+  @keyframes mist-drift { to { transform: translate3d(-4%, -2%, 0); } }
+  @keyframes breathe { 0%, 100% { opacity: .78; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+  @keyframes hint-float { 50% { transform: translateY(-3px); } }
+  @keyframes wake { 0% { opacity: 1; } 33% { opacity: 1; filter: brightness(1.5); transform: scale(1.025); } 100% { opacity: 0; filter: brightness(1); transform: scale(1.045); } }
+  @keyframes halo { 0% { opacity: 0; transform: scale(.8); } 20% { opacity: .65; } 100% { opacity: 0; transform: scale(2.8); } }
+  @keyframes line-in { to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+  @keyframes poem-breathe { 0%, 100% { opacity: 1; } 50% { opacity: .88; } }
+  @keyframes secret-in { from { opacity: 0; transform: translateY(var(--secret-lift, 5px)); } to { opacity: 1; transform: translateY(0); } }
+  .reduced .mist, .reduced .night::before, .reduced .crystal svg,
+  .reduced .hint span, .reduced.complete .letter { animation: none; }
+  .reduced .halo { display: none; }
+  .reduced .line { transform: none; filter: none; }
+  .reduced.awake .intro { animation-name: quiet-out; }
+  .reduced .secret { --secret-lift: 0px; }
+  @keyframes quiet-out { from { opacity: 1; } to { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; }
+    .crystal, .opener { transition: none; }
+  }
+  @media (max-height: 450px) {
+    .eyebrow { top: max(20px, env(safe-area-inset-top, 0px)); }
+    .opener { width: 88px; height: 88px; margin: -44px 0 0 -44px; padding: 6px; }
+    .hint { top: calc(50% + 53px); font-size: 12px; }
+    .aside { margin-top: 7px; }
+    .secret { bottom: calc(env(safe-area-inset-bottom, 0px) + 57px); }
+    .replay { bottom: calc(env(safe-area-inset-bottom, 0px) + 3px); }
+  }
+</style>
+</head>
+<body>
+<main class="scene" id="scene" data-state="idle" aria-label="冬日来信">
+  <div class="night" aria-hidden="true"></div>
+  <div class="mist" aria-hidden="true"></div>
+  <div class="light" aria-hidden="true"></div>
+  <div class="warmth" aria-hidden="true"></div>
+  <canvas id="snow" aria-hidden="true"></canvas>
+  <div class="glass" aria-hidden="true"></div>
+  <div class="composition">
+    <p class="eyebrow" aria-hidden="true">冬日来信</p>
+    <div class="intro" id="intro">
+      <button class="opener" id="opener" type="button" aria-label="打开冬日来信" aria-describedby="hint">
+        <span class="crystal">
+          <!-- Lucide snowflake，内联 SVG；许可见文件末尾 -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=".32" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m10 20-1.25-2.5L6 18M10 4 8.75 6.5 6 6m8 14 1.25-2.5L18 18m-4-14 1.25 2.5L18 6m-1 15-3-6h-4m7-12-3 6 1.5 3M2 12h6.5L10 9m10 1-1.5 2 1.5 2M22 12h-6.5L14 15M4 10l1.5 2L4 14m3 7 3-6-1.5-3M7 3l3 6h4"/>
+          </svg>
+        </span>
+      </button>
+      <p class="hint" id="hint"><span>轻触窗户，看看冬天写给你的话</span><small class="aside">有些心事，只说给你听。</small></p>
+    </div>
+    <div class="halo" aria-hidden="true"></div>
+    <article class="letter" id="letter" aria-label="写给你的情书" aria-hidden="true"></article>
+  </div>
+  <p class="secret" id="secret" aria-hidden="true"></p>
+  <button class="control music" id="music" type="button" aria-label="开启配乐" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>
+      <g class="sound-waves"><path d="M16 9a5 5 0 0 1 0 6M19.364 18.364a9 9 0 0 0 0-12.728"/></g>
+    </svg><span id="music-label">配乐</span>
+  </button>
+  <button class="control replay" id="replay" type="button" disabled aria-hidden="true" tabindex="-1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8M3 3v5h5"/></svg>
+    <span>再读一次</span>
+  </button>
+  <div class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></div>
+  <noscript><p style="position:absolute;top:65%;width:100%;text-align:center">请开启 JavaScript，阅读这封冬日来信</p></noscript>
+</main>
+<script>
+'use strict';
+// 只需修改这里：数组的每一项是一段，\n 表示段内换行。
+const CONFIG = {
+  paragraphs: ['雪落在窗外，\n你落在我心里。', '乐乐，我爱你\n想和你一起度过\n无数个冬至'], // 情话内容，支持多段
+  hiddenText: '这个冬天，想和你一起看很多场雪。', // 底部彩蛋文案
+  snowCount: 90,           // 手机参考雪花数量，会按屏幕与性能自动调整
+  snowSpeed: 1,            // 下落速度倍率，0.5 更慢，1.5 更快
+  animationSpeed: 1,       // 揭晓和呼吸速度倍率，越大越快
+  ripple: true,            // 是否开启点击位置的涟漪
+  easterEgg: true,         // 是否开启停留彩蛋
+  hiddenAfter: 12,         // 前台累计停留多少秒后显示彩蛋
+  colors: {               // 主题颜色，统一使用六位十六进制
+    top: '#060B1A', middle: '#101C35', bottom: '#192A46',
+    ice: '#B8D8F8', moon: '#F3F7FF', lavender: '#B4A7D6', gold: '#F4D9A6'
+  }
+};
+const scene = document.getElementById('scene');
+const canvas = document.getElementById('snow');
+const ctx = canvas.getContext('2d');
+const letter = document.getElementById('letter');
+const secret = document.getElementById('secret');
+const opener = document.getElementById('opener');
+const intro = document.getElementById('intro');
+const announcement = document.getElementById('announcement');
+const root = document.documentElement;
+const musicControl = document.getElementById('music');
+const musicLabel = document.getElementById('music-label');
+const replayControl = document.getElementById('replay');
+const AudioEngine = window.AudioContext || window.webkitAudioContext;
+let audioContext = null, musicGain = null, nextNoteTime = 0, musicStep = 0;
+let musicEnabled = false, musicTouched = false, restartTime = 0;
+const voices = new Set();
+// 自编短旋律；仅用本地振荡器合成，无音频文件、网络请求或额外计时器。
+const melody = [72,76,79,76,74,76,79,83,72,76,81,79,76,74,72,67,69,72,76,79,77,76,74,72,67,71,74,79,76,74,72,null];
+if (!AudioEngine) musicControl.hidden = true;
+function updateMusicControl() {
+  const playing = musicEnabled && audioContext && audioContext.state === 'running';
+  musicControl.setAttribute('aria-pressed', String(!!playing));
+  musicControl.setAttribute('aria-label', playing ? '关闭配乐' : '开启配乐');
+  musicLabel.textContent = playing ? '静音' : '配乐';
+}
+function voice(note, time, volume, duration) {
+  [1, .16].forEach((strength, harmonic) => {
+    const oscillator = audioContext.createOscillator();
+    const envelope = audioContext.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 440 * Math.pow(2, (note - 69) / 12) * (harmonic + 1);
+    envelope.gain.setValueAtTime(.0001, time);
+    envelope.gain.linearRampToValueAtTime(volume * strength, time + .035);
+    envelope.gain.exponentialRampToValueAtTime(.0001, time + duration);
+    oscillator.connect(envelope); envelope.connect(musicGain);
+    voices.add(oscillator);
+    oscillator.onended = () => { oscillator.disconnect(); envelope.disconnect(); voices.delete(oscillator); };
+    oscillator.start(time); oscillator.stop(time + duration + .05);
+  });
+}
+function pumpMusic() {
+  if (!musicEnabled || !audioContext || audioContext.state !== 'running') return;
+  const now = audioContext.currentTime;
+  // 卡帧或后台恢复后跳过过期时间，避免一次补播许多音符。
+  if (nextNoteTime < now) nextNoteTime = now + .06;
+  while (nextNoteTime < now + .2) {
+    const note = melody[musicStep % melody.length];
+    if (note !== null) voice(note, nextNoteTime, .19, 3.1);
+    if (musicStep % 8 === 0) voice([48,45,53,55][Math.floor(musicStep / 8) % 4], nextNoteTime, .15, 4.3);
+    musicStep++; nextNoteTime += .85;
+  }
+}
+function startMusic() {
+  if (!AudioEngine || !musicEnabled) return;
+  try {
+    if (!audioContext || audioContext.state === 'closed') {
+      audioContext = new AudioEngine();
+      musicGain = audioContext.createGain(); musicGain.gain.value = 0;
+      musicGain.connect(audioContext.destination);
+      audioContext.onstatechange = updateMusicControl;
+      nextNoteTime = audioContext.currentTime + .06;
+    }
+    // 必须直接从点击/按键回调调用 resume，兼容移动端的音频解锁限制。
+    const pending = audioContext.resume();
+    musicGain.gain.cancelScheduledValues(audioContext.currentTime);
+    musicGain.gain.setTargetAtTime(.28, audioContext.currentTime, .15);
+    Promise.resolve(pending).then(() => {
+      if (document.hidden) { audioContext.suspend().catch(() => {}); return; }
+      if (musicEnabled) pumpMusic();
+      updateMusicControl();
+    }).catch(updateMusicControl);
+  } catch {
+    musicEnabled = false; updateMusicControl();
+  }
+}
+musicControl.addEventListener('click', event => {
+  event.stopPropagation(); musicTouched = true;
+  const running = musicEnabled && audioContext && audioContext.state === 'running';
+  musicEnabled = !running;
+  if (musicEnabled) startMusic();
+  else if (musicGain) {
+    musicGain.gain.cancelScheduledValues(audioContext.currentTime);
+    musicGain.gain.setTargetAtTime(0, audioContext.currentTime, .08);
+  }
+  updateMusicControl();
+});
+replayControl.addEventListener('click', event => {
+  event.stopPropagation();
+  if (state !== 'complete') return;
+  replayControl.disabled = true; replayControl.tabIndex = -1;
+  replayControl.setAttribute('aria-hidden', 'true');
+  state = 'restarting'; scene.dataset.state = state; restartTime = 0;
+  scene.classList.add('restarting');
+  if (musicEnabled) startMusic();
+});
+function resetStory() {
+  scene.classList.remove('awake', 'complete', 'is-warm', 'restarting');
+  secret.classList.remove('visible'); secret.setAttribute('aria-hidden', 'true');
+  letter.setAttribute('aria-hidden', 'true'); intro.removeAttribute('aria-hidden');
+  announcement.textContent = ''; opener.disabled = false;
+  visibleTime = revealTime = 0; warmAt = -1; secretShown = false;
+  ripples.length = sparks.length = 0; pointer.time = -10;
+  state = 'idle'; scene.dataset.state = state;
+  void scene.offsetWidth; // 先提交初始样式，再重新触发 CSS 动画。
+  awaken(width / 2, stableHeight / 2);
+}
+const motion = matchMedia('(prefers-reduced-motion: reduce)');
+const speed = Math.max(.2, CONFIG.animationSpeed);
+const rand = (min, max) => min + Math.random() * (max - min);
+const rgb = hex => hex.replace('#', '').match(/../g).map(value => parseInt(value, 16)).join(',');
+const colors = CONFIG.colors;
+Object.entries({ 'night-top': colors.top, 'night-middle': colors.middle, 'night-bottom': colors.bottom,
+  ice: colors.ice, moon: colors.moon, lavender: colors.lavender, gold: colors.gold,
+  'ice-rgb': rgb(colors.ice), 'gold-rgb': rgb(colors.gold)
+}).forEach(([name, value]) => root.style.setProperty('--' + name, value));
+document.querySelector('meta[name="theme-color"]').content = colors.top;
+Object.entries({ 'breath-time': 3.8, 'slow-time': 8, 'fade-time': 1.8, 'enter-time': 2 })
+  .forEach(([name, seconds]) => root.style.setProperty('--' + name, seconds / speed + 's'));
+let lines = [];
+CONFIG.paragraphs.forEach(text => {
+  const paragraph = document.createElement('p');
+  String(text).split('\n').forEach(textLine => {
+    const line = document.createElement('span');
+    line.className = 'line'; line.textContent = textLine || '\u00a0';
+    paragraph.appendChild(line); lines.push(line);
+  });
+  letter.appendChild(paragraph);
+});
+secret.textContent = CONFIG.hiddenText;
+let reduced = motion.matches;
+let lowPower = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 2;
+let state = 'idle', visibleTime = 0, revealTime = 0, warmAt = -1, secretShown = false;
+let width = 0, height = 0, stableHeight = 0, dpr = 1, needsResize = true;
+let particles = [], ripples = [], sparks = [];
+let frameId = 0, previous = 0, sampleTime = 0, sampleFrames = 0, slowSamples = 0;
+let lead = 1.5, gap = .6, lineDuration = .9, endTime = 3;
+const pointer = { x: -1000, y: -1000, dx: 0, dy: 0, time: -10 };
+
+function configureMotion() {
+  reduced = motion.matches;
+  scene.classList.toggle('reduced', reduced);
+  scene.classList.toggle('low-power', lowPower);
+  lead = (reduced ? .35 : 1.5) / speed;
+  gap = (reduced ? .18 : .6) / speed;
+  lineDuration = (reduced ? .55 : .9) / speed;
+  endTime = lead + Math.max(0, lines.length - 1) * gap + lineDuration;
+  root.style.setProperty('--wake-time', (reduced ? .35 : 1.5) / speed + 's');
+  root.style.setProperty('--line-time', lineDuration + 's');
+  lines.forEach((line, i) => line.style.setProperty('--delay', lead + i * gap + 's'));
+  needsResize = true;
+}
+// 预绘柔边雪粒，逐帧仅复用贴图，不逐粒使用昂贵的阴影或滤镜。
+function makeSprite(color, soft) {
+  const image = document.createElement('canvas'); image.width = image.height = 32;
+  const brush = image.getContext('2d');
+  const gradient = brush.createRadialGradient(16, 16, 0, 16, 16, 16);
+  gradient.addColorStop(0, 'rgba(' + rgb(color) + ',1)');
+  gradient.addColorStop(soft ? .18 : .48, 'rgba(' + rgb(color) + ',.7)');
+  gradient.addColorStop(1, 'rgba(' + rgb(color) + ',0)');
+  brush.fillStyle = gradient; brush.fillRect(0, 0, 32, 32); return image;
+}
+const sprites = ctx ? [makeSprite(colors.ice, false), makeSprite(colors.moon, false), makeSprite(colors.moon, true)] : [];
+const glowSprite = ctx ? makeSprite(colors.gold, true) : null;
+function particle(anywhere) {
+  const roll = Math.random(), layer = roll < .5 ? 0 : roll < .91 ? 1 : 2;
+  return { x: rand(-20, width + 20), y: anywhere ? rand(-20, height + 20) : -20,
+    layer, size: rand(.7, 1.3) * [1.3, 2.4, 5.3][layer],
+    alpha: rand(.18, .44) * [.6, 1, .65][layer],
+    speed: rand(8, 16) * [.55, 1, 1.5][layer], phase: rand(0, Math.PI * 2) };
+}
+function resize() {
+  const oldWidth = width, oldHeight = height;
+  width = scene.clientWidth; height = scene.clientHeight;
+  // 地址栏小幅伸缩时只调整画布，文字锚点保持稳定；旋转或大幅变化再重排。
+  if (!stableHeight || Math.abs(width - oldWidth) > 2 || Math.abs(height - stableHeight) > 150) {
+    stableHeight = height; root.style.setProperty('--scene-height', stableHeight + 'px');
+  }
+  dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1.25 : 2);
+  canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+  if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  particles.forEach(p => { p.x *= width / (oldWidth || width); p.y *= height / (oldHeight || height); });
+  const area = Math.max(.55, Math.min(1.8, width * height / 329160));
+  const count = Math.min(200, Math.max(0, Math.round(CONFIG.snowCount * area / Math.sqrt(dpr) * (lowPower ? .6 : 1) * (reduced ? .45 : 1))));
+  while (particles.length < count) particles.push(particle(true));
+  particles.length = count;
+  letter.style.fontSize = '';
+  const available = Math.min(stableHeight * .62, Math.max(100, stableHeight - 210));
+  if (letter.offsetHeight > available) letter.style.fontSize = Math.max(14, parseFloat(getComputedStyle(letter).fontSize) * available / letter.offsetHeight) + 'px';
+  needsResize = false;
+}
+function awaken(x, y) {
+  if (state !== 'idle') return;
+  if (!musicTouched) musicEnabled = true;
+  if (musicEnabled) startMusic();
+  state = 'waking'; scene.dataset.state = state; revealTime = 0;
+  opener.disabled = true; intro.setAttribute('aria-hidden', 'true');
+  scene.classList.add('awake');
+  if (CONFIG.ripple && !reduced) ripples.push({ x, y, age: 0 });
+}
+scene.addEventListener('click', event => {
+  if (event.target.closest('.control')) return;
+  awaken(event.detail === 0 ? width / 2 : event.clientX, event.detail === 0 ? stableHeight / 2 : event.clientY);
+});
+document.addEventListener('keydown', event => {
+  if (event.target.closest && event.target.closest('.control')) return;
+  if ((event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') && !event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey) {
+    event.preventDefault(); awaken(width / 2, stableHeight / 2);
+  }
+});
+function movePointer(x, y) {
+  const recent = visibleTime - pointer.time < .15;
+  pointer.dx = recent ? Math.max(-15, Math.min(15, x - pointer.x)) : 0;
+  pointer.dy = recent ? Math.max(-10, Math.min(10, y - pointer.y)) : 0;
+  pointer.x = x; pointer.y = y; pointer.time = visibleTime;
+}
+if ('PointerEvent' in window) {
+  scene.addEventListener('pointermove', e => movePointer(e.clientX, e.clientY), { passive: true });
+  scene.addEventListener('pointerleave', () => { pointer.time = -10; });
+} else {
+  scene.addEventListener('touchmove', e => { if (e.touches.length === 1) movePointer(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+  scene.addEventListener('mousemove', e => movePointer(e.clientX, e.clientY), { passive: true });
+}
+function updateStory(dt) {
+  visibleTime += dt;
+  if (state === 'restarting') {
+    restartTime += dt;
+    if (restartTime >= (reduced ? .22 : .7)) resetStory();
+    return;
+  }
+  if (state === 'waking' || state === 'revealing') {
+    revealTime += dt;
+    if (revealTime >= lead && state === 'waking') { state = 'revealing'; scene.dataset.state = state; }
+    if (warmAt < 0 && revealTime >= lead + Math.max(0, lines.length - 1) * gap) {
+      warmAt = visibleTime; scene.classList.add('is-warm');
+      if (!reduced && !lowPower) {
+        for (let i = 0; i < 7; i++) sparks.push({ x: width / 2 + rand(-115, 115), y: stableHeight / 2 + rand(-75, 80), age: -i * .12, life: rand(1.8, 2.8) });
+      }
+    }
+    if (revealTime >= endTime) {
+      state = 'complete'; scene.dataset.state = state; scene.classList.add('complete');
+      replayControl.disabled = false; replayControl.tabIndex = 0; replayControl.removeAttribute('aria-hidden');
+      letter.removeAttribute('aria-hidden'); announcement.textContent = CONFIG.paragraphs.join('\n');
+    }
+  }
+  if (CONFIG.easterEgg && !secretShown && state === 'complete' && visibleTime >= CONFIG.hiddenAfter) {
+    secretShown = true; secret.classList.add('visible'); secret.removeAttribute('aria-hidden');
+  }
+}
+function draw(dt) {
+  if (!ctx) return;
+  ctx.clearRect(0, 0, width, height);
+  const wind = Math.sin(visibleTime * .19) * 3 + Math.sin(visibleTime * .07) * 2;
+  const nearPointer = visibleTime - pointer.time < .18;
+  particles.forEach((p, i) => {
+    if (!reduced) {
+      p.y += p.speed * Math.max(0, CONFIG.snowSpeed) * dt;
+      p.x += (wind + Math.sin(visibleTime * .45 + p.phase) * (3 + p.layer * 2)) * dt;
+      if (nearPointer && i % 3 === 0) {
+        const distance = Math.hypot(p.x - pointer.x, p.y - pointer.y);
+        const force = Math.max(0, 1 - distance / 105);
+        p.x += pointer.dx * force * dt * 2; p.y += pointer.dy * force * dt;
+      }
+      if (p.y > height + 20) Object.assign(p, particle(false));
+      if (p.x < -22) p.x = width + 20;
+      if (p.x > width + 22) p.x = -20;
+    }
+    const shimmer = !reduced && warmAt >= 0 && visibleTime - warmAt < 3 && i % 11 === 0 ? Math.sin((visibleTime - warmAt) * Math.PI / 3) * .18 : 0;
+    ctx.globalAlpha = p.alpha + shimmer;
+    ctx.drawImage(sprites[p.layer], p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
+  });
+  for (let i = ripples.length - 1; i >= 0; i--) {
+    const r = ripples[i]; r.age += dt * speed;
+    if (r.age > 1.6) { ripples.splice(i, 1); continue; }
+    const progress = r.age / 1.6;
+    ctx.globalAlpha = Math.sin(progress * Math.PI) * .25;
+    ctx.strokeStyle = colors.ice; ctx.lineWidth = .7;
+    ctx.beginPath(); ctx.arc(r.x, r.y, 8 + (1 - Math.pow(1 - progress, 3)) * 78, 0, Math.PI * 2); ctx.stroke();
+  }
+  for (let i = sparks.length - 1; i >= 0; i--) {
+    const s = sparks[i]; s.age += dt * speed;
+    if (s.age >= s.life) { sparks.splice(i, 1); continue; }
+    if (s.age < 0) continue;
+    s.y -= dt * 3; ctx.globalAlpha = Math.sin(s.age / s.life * Math.PI) * .45;
+    ctx.drawImage(glowSprite, s.x - 3, s.y - 3, 6, 6);
+  }
+  ctx.globalAlpha = 1;
+}
+// 唯一动画循环：时间线、粒子与性能采样共用它；后台不积累时间。
+function frame(now) {
+  frameId = 0;
+  const elapsed = previous ? (now - previous) / 1000 : 0;
+  previous = now;
+  const dt = Math.min(elapsed, .1);
+  if (needsResize) resize();
+  updateStory(elapsed); draw(dt); pumpMusic();
+  if (!lowPower && !reduced && elapsed > 0 && elapsed < .2) {
+    sampleTime += elapsed; sampleFrames++;
+    if (sampleTime >= 2) {
+      slowSamples = sampleFrames / sampleTime < 40 ? slowSamples + 1 : 0;
+      if (slowSamples >= 2) { lowPower = true; configureMotion(); }
+      sampleTime = sampleFrames = 0;
+    }
+  }
+  frameId = requestAnimationFrame(frame);
+}
+function pause() {
+  cancelAnimationFrame(frameId); frameId = 0; previous = 0; scene.classList.add('paused');
+  if (audioContext && audioContext.state === 'running') audioContext.suspend().catch(() => {});
+}
+function resume() {
+  if (document.hidden || frameId) return;
+  previous = 0; scene.classList.remove('paused'); frameId = requestAnimationFrame(frame);
+  if (musicEnabled && audioContext) startMusic();
+}
+window.addEventListener('resize', () => { needsResize = true; }, { passive: true });
+window.addEventListener('orientationchange', () => { stableHeight = 0; needsResize = true; }, { passive: true });
+document.addEventListener('visibilitychange', () => document.hidden ? pause() : resume());
+window.addEventListener('pagehide', pause);
+window.addEventListener('pageshow', resume);
+if (motion.addEventListener) motion.addEventListener('change', configureMotion);
+else motion.addListener(configureMotion);
+configureMotion(); resize(); resume();
+</script>
+<!--
+Snowflake, volume and replay SVG icons adapted from Lucide: https://github.com/lucide-icons/lucide
+ISC License — Copyright (c) 2026 Lucide Icons and Contributors
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+</body>
+</html>
+
+
+
+
+
+
+
